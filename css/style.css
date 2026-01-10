@@ -1,0 +1,86 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+}
+
+body, html {
+    height: 100%;
+    background: #0f172a;
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.login-container, .card{
+    display: flex;
+    width: 800px;
+    height: 500px;
+    background: #1e293b;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    overflow: hidden;
+}
+
+.left, .right {
+    flex: 1;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.left h1 {
+    color: #f8fafc;
+    margin-bottom: 10px;
+}
+
+.left p {
+    color: #cbd5e1;
+    margin-bottom: 30px;
+}
+
+.left input {
+    margin-bottom: 20px;
+    padding: 15px;
+    border-radius: 10px;
+    border: none;
+    outline: none;
+    font-size: 16px;
+}
+
+.left button {
+    padding: 15px;
+    border-radius: 10px;
+    border: none;
+    background: #3b82f6;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.left button:hover {
+    background: #2563eb;
+}
+
+.signup-text {
+    color: #94a3b8;
+    margin-top: 20px;
+    font-size: 14px;
+}
+
+.signup-text span {
+    color: #3b82f6;
+    cursor: pointer;
+}
+
+.right img {
+    width: 100%;
+    height: auto;
+}

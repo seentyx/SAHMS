@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Smart Health Monitoring</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link type="image/png" sizes="16x16" rel="icon" href="https://img.icons8.com/external-chloe-kerismaker/64/external-Monitoring-Health-hospital-chloe-kerismaker.png">
+
+  <!-- Firebase v8 -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div class="login-container">
+      <div class="left">
+        <h1>Welcome Back</h1>
+        <p>Sign in to access your Smart Health Dashboard</p>
+        <input type="email" id="email" placeholder="Email" />
+        <input type="password" id="password" placeholder="Password" />
+        <button id="loginBtn">Login</button>
+        <p class="signup-text">Don't have an account? <span>Sign Up</span></p>
+      </div>
+      <div class="right">
+        <img src="assets/health.jpg" alt="Health Monitoring" />
+      </div>
+    </div>
+  </div>
+
+  <script src="js/firebase.js"></script>
+  <script src="js/auth.js"></script>
+</body>
+</html>
