@@ -48,6 +48,7 @@ body, html {
 .left input {
     margin-bottom: 20px;
     padding: 15px;
+    width: 310px;
     border-radius: 10px;
     border: none;
     outline: none;
@@ -56,6 +57,7 @@ body, html {
 
 .left button {
     padding: 15px;
+    width: 310px;
     border-radius: 10px;
     border: none;
     background: #3b82f6;
@@ -84,3 +86,37 @@ body, html {
     width: 100%;
     height: auto;
 }
+.left {
+    position: relative;
+    overflow: hidden;
+}
+
+/* Both forms occupy the SAME space */
+.form {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* Visibility control */
+.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Smooth transition */
+.form {
+    transition: opacity 0.25s ease;
+}
+
