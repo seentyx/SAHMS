@@ -1,3 +1,7 @@
+let routingControl = null;
+let userLatLng = null;
+
+
 document.addEventListener("DOMContentLoaded", function() {
   openPatientManagement(); // Load patient list on page load
 });
@@ -35,7 +39,7 @@ let charts = {};
 let selectedPatientId = null;
 
 function testHealth(patientId) {
-  selectedPatientId = patientId; // ✅ THIS WAS MISSING
+  selectedPatientId = patientId; 
 
   document.getElementById("patientManagement").style.display = "none";
   document.getElementById("patientHealth").style.display = "block";
@@ -183,69 +187,100 @@ function initHospitalMap() {
     pos => {
       const lat = pos.coords.latitude;
       const lng = pos.coords.longitude;
+      const accuracy = pos.coords.accuracy;
 
-      hospitalMap = L.map("hospitalMap").setView([lat, lng], 14);
+      userLatLng = L.latLng(lat, lng);
+
+      hospitalMap = L.map("hospitalMap").setView(userLatLng, 17);
 
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: "&copy; OpenStreetMap contributors"
       }).addTo(hospitalMap);
 
-      L.marker([lat, lng])
+      // Accuracy circle
+      L.circle(userLatLng, {
+        radius: accuracy,
+        color: "#2563eb",
+        fillColor: "#3b82f6",
+        fillOpacity: 0.2
+      }).addTo(hospitalMap);
+
+      // User marker
+      L.marker(userLatLng)
         .addTo(hospitalMap)
-        .bindPopup("You are here")
+        .bindPopup(
+          `You are here<br>Accuracy: ~${Math.round(accuracy)} meters`
+        )
         .openPopup();
 
       loadNearbyHospitals(lat, lng);
     },
-    () => alert("Location permission denied")
+    err => {
+      alert("Location permission denied or unavailable");
+      console.error(err);
+    },
+    {
+      enableHighAccuracy: true,
+      timeout: 15000,
+      maximumAge: 0
+    }
   );
 }
+const hospitalModalEl = document.getElementById("hospitalModal");
+
+hospitalModalEl.addEventListener('shown.bs.modal', () => {
+  if (hospitalMap) {
+    hospitalMap.invalidateSize(); // forces Leaflet to recalc size
+    if (routingControl) {
+      routingControl.getPlan().setWaypoints(routingControl.getWaypoints()); // redraw route if exists
+    }
+  }
+});
 function loadNearbyHospitals(lat, lng) {
   const query = `
-    [out:json];
+    [out:json][timeout:25];
     (
-      node["amenity"="hospital"](around:5000,${lat},${lng});
-      way["amenity"="hospital"](around:5000,${lat},${lng});
+      node["amenity"="hospital"](around:3000,${lat},${lng});
+      way["amenity"="hospital"](around:3000,${lat},${lng});
     );
     out center;
   `;
 
-  fetch("https://overpass-api.de/api/interpreter", {
+  fetch("https://maps.mail.ru/osm/tools/overpass/api/interpreter", {
     method: "POST",
     body: query
   })
-    .then(res => res.json())
+    .then(res => res.text())
+    .then(text => {
+      if (text.startsWith("<")) {
+        throw new Error("Overpass timeout or server error");
+      }
+      return JSON.parse(text);
+    })
     .then(data => {
       data.elements.forEach(h => {
-        const hLat = h.lat || h.center.lat;
-        const hLng = h.lon || h.center.lon;
+        const hLat = h.lat || h.center?.lat;
+        const hLng = h.lon || h.center?.lon;
+
+        if (!hLat || !hLng) return;
 
         L.marker([hLat, hLng])
-          .addTo(hospitalMap)
-          .bindPopup(h.tags?.name || "Hospital");
+  .addTo(hospitalMap)
+  .bindPopup(
+    `<b>${h.tags?.name || "Hospital"}</b><br>
+     <button onclick="routeToHospital(${hLat}, ${hLng})">
+       Show Fastest Route
+     </button>`
+  );
       });
+    })
+    .catch(err => {
+      console.error(err);
+      alert("Hospital data unavailable right now.");
     });
 }
 
-function findNearbyHospitals(location) {
-  const request = {
-    location: location,
-    radius: 5000, // 5km
-    type: ["hospital"]
-  };
 
-  hospitalService.nearbySearch(request, (results, status) => {
-    if (status !== google.maps.places.PlacesServiceStatus.OK) return;
-
-    results.forEach(place => {
-      new google.maps.Marker({
-        map: hospitalMap,
-        position: place.geometry.location,
-        title: place.name
-      });
-    });
-  });
-}
 function submitNewPatient() {
   const name = document.getElementById("patientName").value.trim();
   const birthdate = document.getElementById("patientBirthdate").value;
@@ -280,4 +315,33 @@ function submitNewPatient() {
     console.error(err);
     alert("Failed to add patient");
   });
+}
+function routeToHospital(hLat, hLng) {
+  if (!userLatLng) return alert("User location not available");
+
+  if (routingControl) {
+    hospitalMap.removeControl(routingControl);
+  }
+
+  routingControl = L.Routing.control({
+    waypoints: [
+      userLatLng,
+      L.latLng(hLat, hLng)
+    ],
+    router: L.Routing.osrmv1({ serviceUrl: 'https://router.project-osrm.org/route/v1' }),
+    lineOptions: { styles: [{ color: '#3b82f6', weight: 5 }] },
+    addWaypoints: false,
+    draggableWaypoints: false,
+    fitSelectedRoutes: true,
+    showAlternatives: false
+  })
+  .on('routesfound', e => {
+    const route = e.routes[0];
+    const distanceKm = (route.summary.totalDistance / 1000).toFixed(2);
+    const timeMin = Math.round(route.summary.totalTime / 60);
+
+    document.getElementById("routeDistance").innerText = distanceKm + " km";
+    document.getElementById("routeTime").innerText = timeMin + " min";
+  })
+  .addTo(hospitalMap);
 }
