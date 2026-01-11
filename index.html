@@ -14,14 +14,27 @@
 <body>
   <div class="container">
     <div class="login-container">
-      <div class="left">
+
+      <!-- LOGIN FORM -->
+      <div class="left" id="loginForm">
         <h1>Welcome Back</h1>
         <p>Sign in to access your Smart Health Dashboard</p>
-        <input type="email" id="email" placeholder="Email" />
-        <input type="password" id="password" placeholder="Password" />
+        <input type="email" id="loginEmail" placeholder="Email" />
+        <input type="password" id="loginPassword" placeholder="Password" />
         <button id="loginBtn">Login</button>
-        <p class="signup-text">Don't have an account? <span>Sign Up</span></p>
+        <p class="signup-text">Don't have an account? <span class="link" onclick="showSignup()">Sign Up</span></p>
       </div>
+
+      <!-- SIGNUP FORM -->
+      <div class="left" id="signupForm" style="display:none;">
+        <h1>Create Account</h1>
+        <p>Sign up to access your Smart Health Dashboard</p>
+        <input type="email" id="signupEmail" placeholder="Email" />
+        <input type="password" id="signupPassword" placeholder="Password" />
+        <button id="signupBtn">Sign Up</button>
+        <p class="signup-text">Already have an account? <span class="link" onclick="showLogin()">Login</span></p>
+      </div>
+
       <div class="right">
         <img src="assets/health.jpg" alt="Health Monitoring" />
       </div>
