@@ -171,17 +171,44 @@ function runHealthTest() {
 }
 let hospitalMap;
 
-function openHospitalLocation() {
-  const modal = new bootstrap.Modal(
-    document.getElementById("hospitalModal")
-  );
-  modal.show();
+function routeToHospital(hLat, hLng) {
+  if (!userLatLng) return alert("User location not available");
 
-  setTimeout(initHospitalMap, 300);
+  if (routingControl) {
+    hospitalMap.removeControl(routingControl);
+  }
+
+  routingControl = L.Routing.control({
+  waypoints: [
+    userLatLng,
+    L.latLng(hLat, hLng)
+  ],
+  router: L.Routing.osrmv1({
+    serviceUrl: 'https://router.project-osrm.org/route/v1'
+  }),
+  lineOptions: {
+    styles: [{ color: '#3b82f6', weight: 5 }]
+  },
+  addWaypoints: false,
+  draggableWaypoints: false,
+  fitSelectedRoutes: true,
+  showAlternatives: false,
+  routeWhileDragging: false
+})
+.on('routesfound', e => {
+  const route = e.routes[0];
+
+  const distanceKm = (route.summary.totalDistance / 1000).toFixed(2);
+  const timeMin = Math.round(route.summary.totalTime / 60);
+
+  document.getElementById("routeDistance").textContent = `${distanceKm} km`;
+  document.getElementById("routeTime").textContent = `${timeMin} min`;
+})
+.addTo(hospitalMap);
 }
 
 function initHospitalMap() {
-  if (hospitalMap) return;
+  if (hospitalMap) return; // IMPORTANT
 
   navigator.geolocation.getCurrentPosition(
     pos => {
@@ -191,32 +218,27 @@ function initHospitalMap() {
 
       userLatLng = L.latLng(lat, lng);
 
-      hospitalMap = L.map("hospitalMap").setView(userLatLng, 17);
+      hospitalMap = L.map("hospitalMap").setView(userLatLng, 16);
 
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: "&copy; OpenStreetMap contributors"
       }).addTo(hospitalMap);
 
-      // Accuracy circle
+      L.marker(userLatLng)
+        .addTo(hospitalMap)
+        .bindPopup(`You are here<br>Accuracy ~${Math.round(accuracy)}m`)
+        .openPopup();
+
       L.circle(userLatLng, {
         radius: accuracy,
         color: "#2563eb",
-        fillColor: "#3b82f6",
         fillOpacity: 0.2
       }).addTo(hospitalMap);
-
-      // User marker
-      L.marker(userLatLng)
-        .addTo(hospitalMap)
-        .bindPopup(
-          `You are here<br>Accuracy: ~${Math.round(accuracy)} meters`
-        )
-        .openPopup();
 
       loadNearbyHospitals(lat, lng);
     },
     err => {
-      alert("Location permission denied or unavailable");
+      alert("Location permission denied");
       console.error(err);
     },
     {
@@ -226,6 +248,22 @@ function initHospitalMap() {
     }
   );
 }
+function openHospitalLocation() {
+  const modalEl = document.getElementById("hospitalModal");
+  const modal = new bootstrap.Modal(modalEl);
+
+  modal.show();
+
+  modalEl.addEventListener(
+    "shown.bs.modal",
+    () => {
+      initHospitalMap();
+      hospitalMap.invalidateSize();
+    },
+    { once: true }
+  );
+}
+
 
 document.addEventListener("DOMContentLoaded", function() {
   const hospitalModalEl = document.getElementById("hospitalModal");
@@ -326,35 +364,3 @@ function submitNewPatient() {
     alert("Failed to add patient");
   });
 }
-function routeToHospital(hLat, hLng) {
-  if (!userLatLng) return alert("User location not available");
-
-  if (routingControl) {
-    hospitalMap.removeControl(routingControl);
-  }
-
-  routingControl = L.Routing.control({
-    waypoints: [
-      userLatLng,
-      L.latLng(hLat, hLng)
-    ],
-    router: L.Routing.osrmv1({ serviceUrl: 'https://router.project-osrm.org/route/v1' }),
-    lineOptions: { styles: [{ color: '#3b82f6', weight: 5 }] },
-    addWaypoints: false,
-    draggableWaypoints: false,
-    fitSelectedRoutes: true,
-    showAlternatives: false
-  })
-  .on('routesfound', e => {
-    const route = e.routes[0];
-    const distanceKm = (route.summary.totalDistance / 1000).toFixed(2);
-    const timeMin = Math.round(route.summary.totalTime / 60);
-
-    document.getElementById("routeDistance").innerText = distanceKm + " km";
-    document.getElementById("routeTime").innerText = timeMin + " min";
-  })
-  .addTo(hospitalMap);
-}
-document.querySelectorAll('.leaflet-routing-container *').forEach(el => {
-  el.style.color = 'black';
-});
