@@ -15,17 +15,10 @@
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"></script>
   <link type="image/png" sizes="16x16" rel="icon" href="https://img.icons8.com/external-chloe-kerismaker/64/external-Monitoring-Health-hospital-chloe-kerismaker.png">
-  <!-- Leaflet CSS -->
-<link
-  rel="stylesheet"
-  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-/>
 
-<!-- Leaflet Routing Machine CSS -->
-<link
-  rel="stylesheet"
-  href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css"
-/>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css">
 
 <!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -33,10 +26,7 @@
 <!-- Leaflet Routing Machine JS -->
 <script src="https://cdn.jsdelivr.net/npm/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.min.js"></script>
 <script src="js/firebase.js"></script>
-
-<!-- Dashboard logic -->
 <script src="js/dashboard.js"></script>
-
 
   
   <style>
@@ -125,15 +115,15 @@
       <!-- Hospital Location Modal -->
       <div class="modal modal-blur fade" id="hospitalModal" tabindex="-1">
         <div class="modal-dialog modal-xl modal-dialog-centered">
-          <div class="modal-content">
+          <div class="modal-content" style="font: black;">
             <div class="modal-header">
               <h5 class="modal-title">Nearby Hospitals</h5>
               <button class="btn-close" data-bs-dismiss="modal"></button>
             </div>
 
-            <div class="modal-body p-0">
-              <div id="hospitalMap" style="height: 500px; width: 100%;"></div>
-                <div id="routeInfo" style="margin-top:10px;color:#fff;">
+            <div class="modal-body p-0" style="color: black;">
+              <div id="hospitalMap" style="height: 500px; width: 100%; font: black;"></div>
+                <div id="routeInfo" style="margin-top:10px;font:#000000;">
                   <strong>Distance:</strong> <span id="routeDistance">--</span><br>
                   <strong>Estimated Time:</strong> <span id="routeTime">--</span>
                 </div>
